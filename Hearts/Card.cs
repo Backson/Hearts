@@ -7,13 +7,18 @@ using System.Threading.Tasks;
 
 namespace Hearts
 {
-    public struct Card
+    public struct Card : IEqualityComparer<Card>
     {
+        public Card(Suite suite, Rank rank)
+        {
+            Suite = suite;
+            Rank = rank;
+        }
+        
         public Suite Suite { get; set; }
 
         public Rank Rank { get; set; }
 
-        public static Card Make(Suite suite, Rank rank) => new() { Suite = suite, Rank = rank };
 
         #region
 
@@ -33,24 +38,30 @@ namespace Hearts
             return !lhs.Equals(rhs);
         }
 
+        #endregion
+
         public override bool Equals(object? obj)
         {
-            if (obj == null)
-                return false;
-
-            if (obj is Card that)
-            {
-                return this.Suite == that.Suite && this.Rank == that.Rank;
-            }
-
-            return false;
+            return obj is Card other && Equals(other);
         }
 
         public override int GetHashCode()
         {
-            return (int)Rank * Enum.GetNames(typeof(Suite)).Length + (int)Suite;
+            return HashCode.Combine((int)Suite, (int)Rank);
+        }
+        
+        public bool Equals(Card x, Card y)
+        {
+            return x.Suite == y.Suite && x.Rank == y.Rank;
         }
 
-        #endregion
+        public int GetHashCode(Card obj)
+        {
+            return HashCode.Combine((int)obj.Suite, (int)obj.Rank);
+        }
+        public bool Equals(Card other)
+        {
+            return Suite == other.Suite && Rank == other.Rank;
+        }
     }
 }

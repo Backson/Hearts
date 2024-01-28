@@ -24,7 +24,7 @@ namespace Hearts
         /// The cards that have been played so far in the trick. The first card
         /// is the card played by the leading player.
         /// </summary>
-        public Card[] Cards { get; set; } = Array.Empty<Card>();
+        public List<Card> Cards { get; set; } = new();
 
         /// <summary>
         /// Get the card that is currently winning the trick.
@@ -36,9 +36,9 @@ namespace Hearts
         /// </summary>
         public int WinningCardIndex => GetWinningCardIndex(Cards);
 
-        public static int GetWinningCardIndex(Card[] cards)
+        public static int GetWinningCardIndex(List<Card> cards)
         {
-            if (cards.Length <= 0)
+            if (cards.Count <= 0)
                 throw new ArgumentException("Array cannot be empty", nameof(cards));
 
             // find the card with the highest rank among cards of the leading suite
@@ -46,10 +46,14 @@ namespace Hearts
             Suite leading_suite = leading_card.Suite;
             int position = 0;
             int max = (int)leading_card.Rank;
-            for (int i = 0; i < cards.Length; ++i)
+            
+            
+            
+            for (int i = 0; i < cards.Count; ++i)
             {
                 Card card = cards[i];
                 int value = (int)card.Rank;
+                
                 if (card.Suite == leading_suite && value > max)
                 {
                     position = i;
