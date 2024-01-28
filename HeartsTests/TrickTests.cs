@@ -9,7 +9,7 @@ namespace HeartsTests
         [TestMethod]
         public void TestSingleCardWins()
         {
-            Card[] cards = [new() { Suite = Suite.Spades, Rank = Rank.Ace }];
+            List<Card> cards = [new() { Suite = Suite.Spades, Rank = Rank.Ace }];
             Trick trick = new() { Cards = cards };
 
             Assert.AreEqual(0, trick.WinningCardIndex);
@@ -19,7 +19,7 @@ namespace HeartsTests
         [TestMethod]
         public void TestNoFollowLoses()
         {
-            Card[] cards = [
+            List<Card> cards = [
                 new() { Suite = Suite.Diamonds, Rank = Rank.Two },
                 new() { Suite = Suite.Hearts, Rank = Rank.Two },
                 new() { Suite = Suite.Spades, Rank = Rank.Two },
@@ -34,7 +34,7 @@ namespace HeartsTests
         [TestMethod]
         public void TestNoHigherLoses()
         {
-            Card[] cards = [
+            List<Card> cards = [
                 new() { Suite = Suite.Diamonds, Rank = Rank.Ace },
                 new() { Suite = Suite.Diamonds, Rank = Rank.Two },
                 new() { Suite = Suite.Diamonds, Rank = Rank.Three },
@@ -49,7 +49,7 @@ namespace HeartsTests
         [TestMethod]
         public void TestHigherWins()
         {
-            Card[] cards = [
+            List<Card> cards = [
                 new() { Suite = Suite.Diamonds, Rank = Rank.Ten },
                 new() { Suite = Suite.Diamonds, Rank = Rank.Two },
                 new() { Suite = Suite.Diamonds, Rank = Rank.Jack },
@@ -65,7 +65,7 @@ namespace HeartsTests
         [TestMethod]
         public void TestActivePlayer()
         {
-            Card[] cards = [
+            List<Card> cards = [
                 new() { Suite = Suite.Diamonds, Rank = Rank.Ten },
                 new() { Suite = Suite.Diamonds, Rank = Rank.Two },
                 new() { Suite = Suite.Diamonds, Rank = Rank.Jack },

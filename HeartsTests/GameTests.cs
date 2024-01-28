@@ -43,38 +43,38 @@ namespace HeartsTests
         {
             Game game = new(4, 0);
 
-            Assert.AreEqual(13, game.Hands[0].Cards.Length);
-            Assert.AreEqual(13, game.Hands[1].Cards.Length);
-            Assert.AreEqual(13, game.Hands[2].Cards.Length);
-            Assert.AreEqual(13, game.Hands[3].Cards.Length);
+            Assert.AreEqual(13, game.Hands[0].Cards.Count);
+            Assert.AreEqual(13, game.Hands[1].Cards.Count);
+            Assert.AreEqual(13, game.Hands[2].Cards.Count);
+            Assert.AreEqual(13, game.Hands[3].Cards.Count);
         }
 
         [TestMethod]
         public void TestPlay()
         {
             Hand[] hands = [
-                new() { Cards = [ Card.Make(Suite.Hearts, Rank.Four), Card.Make(Suite.Spades, Rank.Ace)] },
-                new() { Cards = [ Card.Make(Suite.Diamonds, Rank.Two), Card.Make(Suite.Spades, Rank.Two)] },
-                new() { Cards = [ Card.Make(Suite.Hearts, Rank.Ace), Card.Make(Suite.Spades, Rank.Three)] },
-                new() { Cards = [ Card.Make(Suite.Hearts, Rank.King), Card.Make(Suite.Hearts, Rank.Four)] },
+                new() { Cards = [ new Card(Suite.Hearts, Rank.Four), new Card(Suite.Spades, Rank.Ace)] },
+                new() { Cards = [ new Card(Suite.Diamonds, Rank.Two), new Card(Suite.Spades, Rank.Two)] },
+                new() { Cards = [ new Card(Suite.Hearts, Rank.Ace), new Card(Suite.Spades, Rank.Three)] },
+                new() { Cards = [ new Card(Suite.Hearts, Rank.King), new Card(Suite.Hearts, Rank.Four)] },
             ];
             Game game = new(hands, 3);
 
             Assert.AreEqual(0, game.ActivePlayer);
 
-            game.PlayCard(0, Card.Make(Suite.Hearts, Rank.Four));
-            game.PlayCard(1, Card.Make(Suite.Diamonds, Rank.Two));
-            game.PlayCard(2, Card.Make(Suite.Hearts, Rank.Ace));
-            game.PlayCard(3, Card.Make(Suite.Hearts, Rank.King));
+            game.PlayCard(0, new Card(Suite.Hearts, Rank.Four));
+            game.PlayCard(1, new Card(Suite.Diamonds, Rank.Two));
+            game.PlayCard(2, new Card(Suite.Hearts, Rank.Ace));
+            game.PlayCard(3, new Card(Suite.Hearts, Rank.King));
 
-            game.PlayCard(2, Card.Make(Suite.Spades, Rank.Three));
-            game.PlayCard(3, Card.Make(Suite.Hearts, Rank.Four));
-            game.PlayCard(0, Card.Make(Suite.Spades, Rank.Ace));
-            game.PlayCard(1, Card.Make(Suite.Spades, Rank.Two));
+            game.PlayCard(2, new Card(Suite.Spades, Rank.Three));
+            game.PlayCard(3, new Card(Suite.Hearts, Rank.Four));
+            game.PlayCard(0, new Card(Suite.Spades, Rank.Ace));
+            game.PlayCard(1, new Card(Suite.Spades, Rank.Two));
 
             Assert.AreEqual(true, game.IsFinished);
-            Assert.AreEqual(Card.Make(Suite.Hearts, Rank.Ace), game.Tricks[0].WinningCard);
-            Assert.AreEqual(Card.Make(Suite.Spades, Rank.Ace), game.Tricks[1].WinningCard);
+            Assert.AreEqual(new Card(Suite.Hearts, Rank.Ace), game.Tricks[0].WinningCard);
+            Assert.AreEqual(new Card(Suite.Spades, Rank.Ace), game.Tricks[1].WinningCard);
             Assert.AreEqual(1, game.Scores[0]);
             Assert.AreEqual(0, game.Scores[1]);
             Assert.AreEqual(3, game.Scores[2]);

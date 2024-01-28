@@ -8,29 +8,29 @@ namespace HeartsTests
         [TestMethod]
         public void TestDeckHasCorrectSize()
         {
-            Card[] deck = Decks.GetStandardDeck(3);
-            Assert.AreEqual(52 - 52 % 3, deck.Length);
+            List<Card> deck = Decks.GetStandardDeck(3);
+            Assert.AreEqual(52 - 52 % 3, deck.Count);
         }
 
         [TestMethod]
         public void TestFourPlayersDeckHasCorrectSize()
         {
-            Card[] deck = Decks.GetStandardDeck(4);
-            Assert.AreEqual(52 - 52 % 4, deck.Length);
+            List<Card> deck = Decks.GetStandardDeck(4);
+            Assert.AreEqual(52 - 52 % 4, deck.Count);
         }
 
         [TestMethod]
         public void TestFivePlayersDeckHasCorrectSize()
         {
-            Card[] deck = Decks.GetStandardDeck(5);
-            Assert.AreEqual(52 - 52 % 5, deck.Length);
+            List<Card> deck = Decks.GetStandardDeck(5);
+            Assert.AreEqual(52 - 52 % 5, deck.Count);
         }
 
         [TestMethod]
         public void TestSixPlayersDeckHasCorrectSize()
         {
-            Card[] deck = Decks.GetStandardDeck(6);
-            Assert.AreEqual(52 - 52 % 6, deck.Length);
+            List<Card> deck = Decks.GetStandardDeck(6);
+            Assert.AreEqual(52 - 52 % 6, deck.Count);
         }
     }
 }

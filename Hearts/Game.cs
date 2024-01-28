@@ -19,35 +19,23 @@ namespace Hearts
         public Game(int numberOfPlayers, int dealer)
         {
             NumberOfPlayers = numberOfPlayers;
-            Hands = new Hand[numberOfPlayers];
-            Scores = new int[numberOfPlayers];
+            Scores = Enumerable.Range(1, NumberOfPlayers).Select(_ => 0).ToList();
             Dealer = dealer;
 
             // The player next to the dealer leads the first trick
-            int leading_player = GetNextPlayer(dealer);
-            ActivePlayer = leading_player;
-            Tricks = [new Trick() { LeadingPlayer = leading_player }];
+            ActivePlayer = GetNextPlayer(Dealer); 
+            Tricks = [new Trick { LeadingPlayer = ActivePlayer }];
 
             // shuffle deck
-            Card[] deck = Decks.GetStandardDeck(numberOfPlayers);
+            Card[] deck = Decks.GetStandardDeck(NumberOfPlayers).ToArray();
             Random.Shuffle(deck);
 
             // deal the cards
-            List<Card>[] dealt_cards = new List<Card>[numberOfPlayers];
-            for (int i = 0; i < numberOfPlayers; ++i)
-            {
-                dealt_cards[i] = new List<Card>();
-            }
-            int counter = 0;
-            foreach (Card card in deck)
-            {
-                int which_player = counter++ % numberOfPlayers;
-                dealt_cards[which_player].Add(card);
-            }
-            for (int i = 0; i < numberOfPlayers; i++)
-            {
-                Hands[i] = new Hand() { Cards = dealt_cards[i].ToArray() };
-            }
+            Hands = deck
+               .Select((card, index) => new { card, index })
+               .GroupBy(grp => grp.index % 4)
+               .Select(grouping => new Hand { Cards = grouping.Select(arg => arg.card).ToList() })
+               .ToList();
         }
 
         /// <summary>
@@ -57,18 +45,15 @@ namespace Hearts
         /// <param name="dealer">Index of the player who deals the cards.</param>
         public Game(IEnumerable<Hand> hands, int dealer)
         {
-            int numberOfPlayers = hands.Count();
-            NumberOfPlayers = numberOfPlayers;
-            Hands = new Hand[numberOfPlayers];
-            Scores = new int[numberOfPlayers];
+            Hands = hands.ToList();
+            
+            NumberOfPlayers = Hands.Count;
+            Scores = Enumerable.Range(1, Hands.Count).Select(_ => 0).ToList();
             Dealer = dealer;
 
             // The player next to the dealer leads the first trick
-            int leading_player = GetNextPlayer(dealer);
-            ActivePlayer = leading_player;
-            Tricks = [new Trick() { LeadingPlayer = leading_player }];
-
-            Hands = hands.ToArray();
+            ActivePlayer = GetNextPlayer(dealer);
+            Tricks = [new Trick { LeadingPlayer = ActivePlayer }];
         }
 
         /// <summary>
@@ -78,10 +63,7 @@ namespace Hearts
         /// <returns>The player after the current player.</returns>
         private int GetNextPlayer(int current_player)
         {
-            if (current_player < 0)
-                return current_player;
-            else
-                return (current_player + 1) % NumberOfPlayers;
+            return current_player < 0 ? current_player : (current_player + 1) % NumberOfPlayers;
         }
 
         /// <summary>
@@ -107,33 +89,28 @@ namespace Hearts
         /// <summary>
         /// Hands of all the players
         /// </summary>
-        public Hand[] Hands { get; private set; }
+        public List<Hand> Hands { get; private set; }
 
         /// <summary>
         /// Hand of the active player.
         /// </summary>
-        public Hand ActivePlayerHand { get => Hands[ActivePlayer]; }
+        public Hand ActivePlayerHand => Hands[ActivePlayer];
 
         /// <summary>
         /// Current number of penalty points for each player.
         /// The numbers are positive, but the goal is to have the fewest points.
         /// </summary>
-        public int[] Scores { get; private set; }
+        public List<int> Scores { get; private set; }
 
         /// <summary>
         /// All the tricks that have been already played.
         /// </summary>
-        public Trick[] Tricks { get; private set; } = [];
+        public List<Trick> Tricks { get; private set; }
 
         /// <summary>
         /// The trick that is currently being played.
         /// </summary>
-        public Trick CurrentTrick { get => Tricks[CurrentTrickIndex]; }
-
-        /// <summary>
-        /// Index of the trick that is currently being played.
-        /// </summary>
-        public int CurrentTrickIndex { get; private set; }
+        public Trick CurrentTrick => Tricks.Last();
 
         private Random Random { get; } = new();
 
@@ -147,43 +124,38 @@ namespace Hearts
                 throw new InvalidOperationException("Game already finished");
 
             // throw if suite is not followed
-            if (CurrentTrick.Cards.Length > 0)
+            if (CurrentTrick.Cards.Count > 0)
             {
                 Suite leading_suite = CurrentTrick.Cards[0].Suite;
-                if (card.Suite != leading_suite && Hands[player].Cards.Where(c => c.Suite == leading_suite).Count() > 0)
+                if (card.Suite != leading_suite && Hands[player].Cards.Any(c => c.Suite == leading_suite))
                     throw new InvalidOperationException("Must follow leading suite");
             }
 
 
 
             // remove card from player hand
-            ActivePlayerHand.Cards = ActivePlayerHand.Cards.Where(c => c != card).ToArray();
+            ActivePlayerHand.Cards = ActivePlayerHand.Cards.Where(c => c != card).ToList();
             // append card to trick
-            CurrentTrick.Cards = CurrentTrick.Cards.Append(card).ToArray();
+            CurrentTrick.Cards = CurrentTrick.Cards.Append(card).ToList();
             // next players turn
             ActivePlayer = GetNextPlayer(ActivePlayer);
 
             // check for new trick
-            if (CurrentTrick.Cards.Length == NumberOfPlayers)
+            if (CurrentTrick.Cards.Count == NumberOfPlayers)
             {
                 // who won the trick
                 int winner = (CurrentTrick.WinningCardIndex + ActivePlayer) % NumberOfPlayers;
                 // whoever gets the trick, gets all the points
-                foreach (Card c in CurrentTrick.Cards)
-                {
-                    Scores[winner] += ScoreCard(c);
-                }
+                Scores[winner] = CurrentTrick.Cards.Select(ScoreCard).Sum();
                 // winner of trick goes next
                 ActivePlayer = winner;
                 // new trick
-                CurrentTrickIndex++;
-                while (CurrentTrickIndex >= Tricks.Length)
-                    Tricks = Tricks.Append(new()).ToArray();
+                Tricks.Add(new Trick());
                 CurrentTrick.LeadingPlayer = ActivePlayer;
             }
 
             // check game end
-            if (ActivePlayerHand.Cards.Length == 0)
+            if (ActivePlayerHand.Cards.Count == 0)
             {
                 IsFinished = true;
             }
@@ -199,16 +171,13 @@ namespace Hearts
                 return [];
 
             // If this is the first card in the trick, all cards are legal.
-            if (CurrentTrick.Cards.Length == 0)
+            if (CurrentTrick.Cards.Count == 0)
                 return ActivePlayerHand.Cards;
 
             // Must follow suite if possible
             Suite leading_suite = CurrentTrick.Cards[0].Suite;
-            var cards = ActivePlayerHand.Cards.Where(c => c.Suite == leading_suite);
-            if (cards.Any())
-                return cards;
-            else
-                return ActivePlayerHand.Cards;
+            var cards = ActivePlayerHand.Cards.Where(c => c.Suite == leading_suite).ToList();
+            return cards.Any() ? cards : ActivePlayerHand.Cards;
         }
 
         /// <summary>
@@ -216,10 +185,7 @@ namespace Hearts
         /// </summary>
         public static int ScoreCard(Card card)
         {
-            if (card.Suite == Suite.Hearts)
-                return 1;
-            else
-                return 0;
+            return card.Suite == Suite.Hearts ? 1 : 0;
         }
     }
 }

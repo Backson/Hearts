@@ -11,6 +11,6 @@ namespace Hearts
     /// </summary>
     public class Hand
     {
-        public Card[] Cards { get; set; } = Array.Empty<Card>();
+        public List<Card> Cards { get; set; } = new();
     }
 }

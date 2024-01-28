@@ -9,17 +9,17 @@ Game game = new Game(number_of_players, dealer_index);
 
 while (!game.IsFinished)
 {
-    if (game.CurrentTrick.Cards.Length == 0)
+    if (game.CurrentTrick.Cards.Count == 0)
     {
-        Console.WriteLine($"Trick {game.CurrentTrickIndex + 1}:");
+        Console.WriteLine($"Trick {game.Tricks.Count}:");
     }
 
     int active_player = game.ActivePlayer;
     if (active_player == player_index)
     {
         Console.WriteLine("  Choose a card to play from your hand:");
-        Card[] cards_in_hand = game.Hands[player_index].Cards;
-        cards_in_hand = cards_in_hand.OrderBy(card => card.Suite).ThenBy(card => card.Rank).ToArray();
+        List<Card> cards_in_hand = game.Hands[player_index].Cards;
+        cards_in_hand = cards_in_hand.OrderBy(card => card.Suite).ThenBy(card => card.Rank).ToList();
         int index = 0;
         foreach (Card card in cards_in_hand)
         {
@@ -29,7 +29,7 @@ while (!game.IsFinished)
         GET_CHOICE:
 
         string? input = Console.ReadLine();
-        if (input == null || !int.TryParse(input, out int choice) || choice <= 0 || choice > cards_in_hand.Length)
+        if (input == null || !int.TryParse(input, out int choice) || choice <= 0 || choice > cards_in_hand.Count)
         {
             Console.WriteLine($"  Invalid input, try again...");
             goto GET_CHOICE;
